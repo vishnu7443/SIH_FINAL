@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Health-themed color palette */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 27%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 27%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 27%;
+
+    /* Medical blue primary */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 217 91% 85%;
+
+    /* Health green secondary */
+    --secondary: 158 64% 52%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-light: 158 64% 85%;
+
+    /* Neutral grays */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 94%;
+    --accent-foreground: 215 25% 27%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+
+    /* Chat-specific colors */
+    --bot-message: 210 40% 96%;
+    --bot-message-foreground: 215 25% 27%;
+    --user-message: 217 91% 60%;
+    --user-message-foreground: 0 0% 100%;
+
+    /* Health gradients */
+    --gradient-health: linear-gradient(135deg, hsl(217 91% 60%), hsl(158 64% 52%));
+    --gradient-subtle: linear-gradient(180deg, hsl(210 20% 98%), hsl(210 40% 96%));
+
+    /* Shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(217 91% 60% / 0.1);
+    --shadow-card: 0 8px 30px -6px hsl(217 91% 60% / 0.15);
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Dark health theme */
+    --background: 215 25% 12%;
+    --foreground: 210 40% 95%;
+
+    --card: 215 25% 15%;
+    --card-foreground: 210 40% 95%;
+
+    --popover: 215 25% 15%;
+    --popover-foreground: 210 40% 95%;
+
+    /* Adjusted for dark mode */
+    --primary: 217 91% 65%;
+    --primary-foreground: 215 25% 12%;
+    --primary-light: 217 91% 25%;
+
+    --secondary: 158 64% 48%;
+    --secondary-foreground: 215 25% 12%;
+    --secondary-light: 158 64% 25%;
+
+    --muted: 215 25% 20%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 215 25% 20%;
+    --accent-foreground: 210 40% 95%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 95%;
+
+    --border: 215 25% 25%;
+    --input: 215 25% 25%;
+    --ring: 217 91% 65%;
+
+    /* Dark chat colors */
+    --bot-message: 215 25% 20%;
+    --bot-message-foreground: 210 40% 95%;
+    --user-message: 217 91% 55%;
+    --user-message-foreground: 0 0% 100%;
+
+    /* Dark gradients */
+    --gradient-health: linear-gradient(135deg, hsl(217 91% 55%), hsl(158 64% 45%));
+    --gradient-subtle: linear-gradient(180deg, hsl(215 25% 12%), hsl(215 25% 18%));
+
+    /* Dark shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 8px 30px -6px hsl(0 0% 0% / 0.4);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
