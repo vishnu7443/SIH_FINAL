@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Request, Form
 from fastapi.responses import StreamingResponse, JSONResponse, PlainTextResponse
 from app.models import ChatRequest, FAQ
@@ -15,6 +16,27 @@ from sklearn.metrics.pairwise import cosine_similarity
 import heapq
 from deep_translator import GoogleTranslator
 from fastapi import BackgroundTasks
+import requests
+import speech_recognition as sr
+from io import BytesIO
+import re
+import os
+import logging
+import requests
+import tempfile
+from io import BytesIO
+from fastapi import APIRouter, Form, BackgroundTasks
+from fastapi.responses import PlainTextResponse
+import speech_recognition as sr
+import whisper
+import requests
+import tempfile
+from pydub import AudioSegment
+from pydub.utils import which
+
+# At the top of routes.py
+PUBLIC_URL = os.getenv("PUBLIC_URL", "https://9c961f52afbf.ngrok-free.app")
+
 
 # ------------------------------------------------------------------------------
 # Router
@@ -25,7 +47,7 @@ CURRENT_LANGUAGE = "en"  # default for web client
 
 # Per-user language for WhatsApp (keyed by WhatsApp number)
 WHATSAPP_LANG_MAP: Dict[str, str] = {}
-
+whisper_model = whisper.load_model("tiny")   # try "small" or "medium" if GPU
 # ------------------------------------------------------------------------------
 # Dataset
 # ------------------------------------------------------------------------------
@@ -293,15 +315,25 @@ def get_supported_languages():
 # ------------------------------------------------------------------------------
 # WhatsApp Webhook (Twilio)
 # ------------------------------------------------------------------------------
+# --------------------------------------------------------------------------
+# WhatsApp Webhook (Twilio) with Voice Input
+# --------------------------------------------------------------------------
+
+recognizer = sr.Recognizer()
+
 @router.post("/whatsapp")
 async def whatsapp_webhook(
-    Body: str = Form(...),
+    Body: str = Form(""),          # default empty if audio-only
     From: str = Form(...),
     To: str = Form(...),
+    NumMedia: int = Form(0),
+    MediaUrl0: str = Form(None),
+    MediaContentType0: str = Form(None),
     background_tasks: BackgroundTasks = None
 ):
-    logging.info(f"📩 WhatsApp from {From}: {Body}")
+    logging.info(f"📩 WhatsApp from {From}: {Body} (media: {NumMedia})")
 
+    # --- Language setting command ---
     maybe_match = re.match(r"^\s*(lang|language)\s*[:=]\s*(.+)$", Body.strip(), re.IGNORECASE)
     if maybe_match:
         lang_value = normalize_language_code(maybe_match.group(2))
@@ -312,6 +344,7 @@ async def whatsapp_webhook(
 
     user_lang = WHATSAPP_LANG_MAP.get(From, "en")
 
+    # --- Normal answer pipeline ---
     result = get_best_answer(Body)
     answer_text = result["answer"]
 
@@ -320,28 +353,7 @@ async def whatsapp_webhook(
 
     answer_text = translate_text(answer_text, user_lang)
 
-    # Send text instantly
-    response = f"<Response><Message>{answer_text}</Message></Response>"
-
-    # Background task: generate TTS + send audio
-    async def send_tts():
-        audio_path = text_to_speech(answer_text, user_lang, f"{From.replace('+','')}.mp3")
-        if not audio_path:
-            return
-        audio_url = f"{audio_path}"  # serve from your static server
-        twilio_url = "https://api.twilio.com/2010-04-01/Accounts/{AccountSid}/Messages.json"
-        async with httpx.AsyncClient(auth=("AccountSid", "AuthToken")) as client:
-            await client.post(
-                twilio_url,
-                data={
-                    "From": To,
-                    "To": From,
-                    "Body": "🔊 Here is the voice version:",
-                    "MediaUrl": f"{audio_url}"
-                }
-            )
-
-    if background_tasks:
-        background_tasks.add_task(send_tts)
+    # --- Build response ---
+    response = f"<Response><Message><Body>{answer_text}</Body></Message></Response>"
 
     return PlainTextResponse(content=response, media_type="application/xml")
